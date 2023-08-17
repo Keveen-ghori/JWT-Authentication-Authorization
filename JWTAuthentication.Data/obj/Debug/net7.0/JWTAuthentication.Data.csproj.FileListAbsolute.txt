@@ -1,0 +1,12 @@
+D:\Asp.Net\JWTAuthentication.Data\bin\Debug\net7.0\JWTAuthentication.Data.deps.json
+D:\Asp.Net\JWTAuthentication.Data\bin\Debug\net7.0\JWTAuthentication.Data.dll
+D:\Asp.Net\JWTAuthentication.Data\bin\Debug\net7.0\JWTAuthentication.Data.pdb
+D:\Asp.Net\JWTAuthentication.Data\obj\Debug\net7.0\JWTAuthentication.Data.csproj.AssemblyReference.cache
+D:\Asp.Net\JWTAuthentication.Data\obj\Debug\net7.0\JWTAuthentication.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\Asp.Net\JWTAuthentication.Data\obj\Debug\net7.0\JWTAuthentication.Data.AssemblyInfoInputs.cache
+D:\Asp.Net\JWTAuthentication.Data\obj\Debug\net7.0\JWTAuthentication.Data.AssemblyInfo.cs
+D:\Asp.Net\JWTAuthentication.Data\obj\Debug\net7.0\JWTAuthentication.Data.csproj.CoreCompileInputs.cache
+D:\Asp.Net\JWTAuthentication.Data\obj\Debug\net7.0\JWTAuthentication.Data.dll
+D:\Asp.Net\JWTAuthentication.Data\obj\Debug\net7.0\refint\JWTAuthentication.Data.dll
+D:\Asp.Net\JWTAuthentication.Data\obj\Debug\net7.0\JWTAuthentication.Data.pdb
+D:\Asp.Net\JWTAuthentication.Data\obj\Debug\net7.0\ref\JWTAuthentication.Data.dll
