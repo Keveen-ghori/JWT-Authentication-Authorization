@@ -1,14 +1,18 @@
-﻿using JWTAuthentication.Application.Contract.Services;
+﻿using JWTAuthentication.API.Handlers;
+using JWTAuthentication.Application.Contract;
+using JWTAuthentication.Application.Contract.Services;
 using JWTAuthentication.Application.Dtos;
 using JWTAuthentication.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace JWTAuthentication.API.Controllers
 {
     [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
+    [ApiVersion("1.0")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
@@ -21,35 +25,64 @@ namespace JWTAuthentication.API.Controllers
 
         // GET: api/employee>
         [HttpGet]
-        [Route("GetAllEmployees")]
-        public async Task<ActionResult<List<EmployeeDto>>> Get()
+        [Route("{v:apiVersion}/GetAllEmployees")]
+        public async Task<ApiResponse<List<EmployeeDto>>> Get([FromQuery] OwnerParameters ownerParameters)
         {
-            var employees = await this.empService.GetAllEmployeesAsync();
-            return Ok(employees);
+            var apiResponse = new ApiResponse<List<EmployeeDto>>();
+            try
+            {
+                var employees = await this.empService.GetAllEmployeesAsync(ownerParameters);
+
+                var metadata = new
+                {
+                    employees.TotalCount,
+                    employees.PageSize,
+                    employees.CurrentPage,
+                    employees.TotalPages,
+                    employees.HasNext,
+                    employees.HasPrevious
+                };
+                
+                Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+                return apiResponse.HandleResponse(employees);
+            }
+            catch (Exception ex)
+            {
+                return apiResponse.HandleException(ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("GetEmpById/{EmployeeId:long}")]
-        public async Task<ActionResult<EmployeeDto>> GetEmpById([FromRoute] long EmployeeId)
+        public async Task<ApiResponse<EmployeeDto>> GetEmpById([FromRoute] long EmployeeId)
         {
+            var apiResponse = new ApiResponse<EmployeeDto>();
             try
             {
                 var employee = await this.empService.GetEmployeeDetailsAsync(EmployeeId);
-                return Ok(employee);
+                return apiResponse.HandleResponse(employee);
             }
             catch (Exception ex)
             {
-                return Ok(ex.Message);
+                return apiResponse.HandleException(ex.Message);
             }
 
         }
 
         [HttpPost]
         [Route("CreateEmp")]
-        public async Task<ActionResult<EmployeeDto>> CreateEmp([FromBody] CreateEmployeeDto model)
+        public async Task<ApiResponse<EmployeeDto>> CreateEmp([FromBody] CreateEmployeeDto model)
         {
-            var newEmp = await this.empService.CreateEmpAsync(model);
-            return Ok(newEmp);
+            var apiResponse = new ApiResponse<EmployeeDto>();
+            try
+            {
+                var newEmp = await this.empService.CreateEmpAsync(model);
+                return apiResponse.HandleResponse(newEmp);
+            }
+            catch (Exception ex)
+            {
+                return apiResponse.HandleException(ex.Message);
+            }
         }
 
     }

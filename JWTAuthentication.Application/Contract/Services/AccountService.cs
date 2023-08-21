@@ -57,8 +57,8 @@ namespace JWTAuthentication.Application.Contract.Services
                 var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                 var token = new JwtSecurityToken(
-                        this.configuration["JWT:ValidIssuer"]!,
-                        this.configuration["JWT:ValidAudience"]!,
+                        this.configuration["JWT:ValidIssuer"],
+                        this.configuration["JWT:ValidAudience"],
                         claims,
                         expires: DateTime.UtcNow.AddMinutes(10),
                         signingCredentials: signIn);

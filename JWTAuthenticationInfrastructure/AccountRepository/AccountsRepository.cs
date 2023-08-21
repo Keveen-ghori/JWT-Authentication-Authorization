@@ -26,6 +26,7 @@ namespace JWTAuthenticationInfrastructure.AccountRepository
             entity.DisplayName = entity.UserName;
             entity.CreatedDate = DateTime.Now;
             entity.Password = Crypto.HashPassword(entity.Password);
+            entity.Email = entity.Email.ToLower();
             this.emscontext.Add(entity);
             this.emscontext.SaveChanges();
             return true;

@@ -1,4 +1,5 @@
 ﻿using JWTAuthentication.Application.Common;
+using JWTAuthentication.Application.Dtos;
 using JWTAuthentication.Data.Settings;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -47,9 +48,10 @@ namespace JWTAuthenticationInfrastructure.Common
         #endregion
 
         #region GetAll
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression)
+        public async Task<IQueryable<T>> GetAllAsync(Expression<Func<T, bool>> expression)
         {
-            return await this.context.Set<T>().Where(expression).ToListAsync();
+            var queryableData = this.context.Set<T>().Where(expression);
+            return await Task.FromResult(queryableData);
         }
         #endregion
 

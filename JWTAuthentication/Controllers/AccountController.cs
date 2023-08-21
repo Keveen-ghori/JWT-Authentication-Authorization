@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using JWTAuthentication.API.Handlers;
+using JWTAuthentication.Application.Contract;
 using JWTAuthentication.Application.Contract.Services;
 using JWTAuthentication.Application.Dtos;
 using JWTAuthentication.Data.Models;
@@ -24,41 +26,60 @@ namespace JWTAuthentication.API.Controllers
 
         [HttpPost]
         [Route("Login")]
-        public IActionResult Login(string userName, string password)
+        public ApiResponse<string> Login(string userName, string password)
         {
-            if (userName == null && password == null)
-            {
-                return BadRequest("Please Enter Username and Password");
-            }
-            else if (password == null)
-            {
-                return BadRequest("Please enter Password");
-            }
-            else if (userName == null)
-            {
-                return BadRequest("Please enter Username");
-            }
-            else
-            {
-                string message = this.accountService.Login(userName, password);
+            var apiResponse = new ApiResponse<string>();
 
-                return Ok(message);
+            try
+            {
+                if (userName == null && password == null)
+                {
+                    throw new ArgumentException("Please Enter Username and Password");
+                }
+                else if (password == null)
+                {
+                    throw new ArgumentException("Please enter Password");
+                }
+                else if (userName == null)
+                {
+                    throw new ArgumentException("Please enter Username");
+                }
+                else
+                {
+                    string message = this.accountService.Login(userName, password);
+
+                    return apiResponse.HandleResponse(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                return apiResponse.HandleException(ex.Message);
             }
         }
 
         [HttpPost]
         [Route("Register")]
-        public IActionResult Register(CreateUser model)
+        public ApiResponse<string> Register(CreateUser model)
         {
-            bool success = false;
-            if (ModelState.IsValid)
-            {
-                UserDetails userDetails = mapper.Map<UserDetails>(model);
-                success = this.accountService.Register(userDetails);
+            var apiResponse = new ApiResponse<string>();
 
-                return Ok(success ? "Register successfully." : "There are some isuue in creating your account.");
+            try
+            {
+                bool success = false;
+                if (ModelState.IsValid)
+                {
+                    UserDetails userDetails = mapper.Map<UserDetails>(model);
+                    success = this.accountService.Register(userDetails);
+
+                    return apiResponse.HandleResponse(success ? "Register successfully." : "There are some isuue in creating your account.");
+                }
+                throw new ArgumentException(ModelState.ErrorCount.ToString());
             }
-            return BadRequest(ModelState.ErrorCount);
+            catch (Exception ex)
+            {
+                return apiResponse.HandleException(ex.Message);
+            }
+
         }
 
         [HttpGet]

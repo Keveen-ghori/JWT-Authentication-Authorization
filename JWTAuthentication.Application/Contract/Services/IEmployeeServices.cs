@@ -23,19 +23,31 @@ namespace JWTAuthentication.Application.Contract.Services
         }
 
 
-        public async Task<List<EmployeeDto>> GetAllEmployeesAsync()
+        public async Task<PagedList<EmployeeDto>> GetAllEmployeesAsync(OwnerParameters ownerParameters)
         {
-            var employees = await this.unitOfWork.GenericRepositoryBase<Employee>()
-                                                 .GetAllAsync(x => x.DeletedAt == null);
+            var employeesEnumerable = await this.unitOfWork.GenericRepositoryBase<Employee>()
+         .GetAllAsync(x => x.DeletedAt == null);
 
+            var employeesQueryable = employeesEnumerable.AsQueryable();
 
-            return mapper.Map<List<EmployeeDto>>(employees);
+            var employeesPaged = await PagedList<Employee>.ToPagedList(
+                employeesQueryable,
+                ownerParameters.PageNumber,
+                ownerParameters.PageSize);
+
+            var employeeDtosPaged = employeesPaged.Select(employee => mapper.Map<EmployeeDto>(employee));
+
+            return new PagedList<EmployeeDto>(
+                employeeDtosPaged.ToList(),
+                employeesPaged.TotalCount,
+                employeesPaged.CurrentPage,
+                employeesPaged.PageSize);
         }
 
         public async Task<EmployeeDto> GetEmployeeDetailsAsync(long EmployeeId)
         {
             var employees = await this.unitOfWork.GenericRepositoryBase<Employee>()
-                                                 .GetByIdAsync(x => x.DeletedAt == null && x.EmployeeId== EmployeeId);
+                                                 .GetByIdAsync(x => x.DeletedAt == null && x.EmployeeId == EmployeeId);
 
 
             return mapper.Map<EmployeeDto>(employees);

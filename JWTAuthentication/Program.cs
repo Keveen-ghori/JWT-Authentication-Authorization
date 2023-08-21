@@ -42,5 +42,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.ConfigureAppMiddleware();
+
 app.MapControllers();
 app.Run();

@@ -9,11 +9,14 @@ using JWTAuthenticationInfrastructure.Profiles;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace JWTAuthentication.API.DependencyInjection
 {
@@ -72,6 +75,36 @@ namespace JWTAuthentication.API.DependencyInjection
             });
 
             services.AddAutoMapper(typeof(MappingProfile));
+
+
+            services.AddApiVersioning(x =>
+            {
+                x.DefaultApiVersion = new ApiVersion(1, 0);
+                x.AssumeDefaultVersionWhenUnspecified = true;
+                x.ReportApiVersions = true;
+            });
+
+            services.AddDistributedMemoryCache();
+
+            services.AddRateLimiter(options =>
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                {
+                    return RateLimitPartition.GetFixedWindowLimiter(partitionKey: httpContext.Request.Headers.Host.ToString(), partition =>
+                        new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 5,
+                            AutoReplenishment = true,
+                            Window = TimeSpan.FromSeconds(10)
+                        });
+                });
+
+                options.OnRejected = async (context, token) =>
+                {
+                    context.HttpContext.Response.StatusCode = 429;
+                    await context.HttpContext.Response.WriteAsync("Too many requests. Please try later again... ", cancellationToken: token);
+                };
+            });
             return services;
         }
 
@@ -92,6 +125,7 @@ namespace JWTAuthentication.API.DependencyInjection
 
             app.UseCors("EnableCORS");
 
+            app.UseRateLimiter();
         }
     }
 }
